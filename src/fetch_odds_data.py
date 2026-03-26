@@ -62,6 +62,15 @@ def main():
     event_data = fetch_event_goal_scorer_odds(event_id)
     df = extract_goal_odds(event_data)
 
+    df = (
+    df.groupby(["player_name", "home_team", "away_team"], as_index=False)
+      .agg({
+          "goal_odds": "mean"
+      })
+    )
+
+    df["goal_prob"] = 1 / df["goal_odds"]
+
     print(df.head(20))
 
     os.makedirs("data", exist_ok=True)
