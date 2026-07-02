@@ -69,3 +69,16 @@ Ambiguity resolutions not covered by SPEC.md, with rationale. Newest last.
   staleness, no artefact management.
 - **eval/splits.json created in Phase 2** (models need the train-season list
   at fit time); train = 2016-17..2023-24, holdout = 2024-25 per SPEC.
+
+## Phase 3
+
+- **Stats model is fitted once on the train seasons, never refit inside the
+  holdout walk.** Stricter than refitting each GW on everything-so-far (zero
+  holdout leakage) and matches how the tool would deploy: a fixed model
+  scoring new GWs.
+- **Spearman is reported over two populations**: all players with a fixture
+  (the SPEC metric — what a tool user browsing the full table experiences)
+  and only players with minutes > 0 (harder; strips the free wins from
+  ranking bench-sitters last). The headline metric is the all-players one.
+- **Per-GW results are written to eval/backtest_results.csv (gitignored)** —
+  derived output, regenerable by `make backtest`.

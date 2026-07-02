@@ -65,10 +65,25 @@ target — proven by `tests/test_no_lookahead.py`), the minutes model
 (`start_prob` = trailing rate of 60+-minute appearances), and the xPts
 formula. Bonus/cards/saves are out of scope (see `DECISIONS.md`).
 
-## Phase 3 — Evaluation
+## Phase 3 — Evaluation (done)
 
-`eval/backtest.py`: walk-forward by GW, metric = mean within-GW Spearman on
-the 2024-25 holdout (splits in `eval/splits.json`).
+```bash
+make backtest      # = python eval/backtest.py
+```
+
+Walk-forward over every GW of the 2024-25 holdout (splits in
+`eval/splits.json`; the stats model is fitted on train seasons only, and all
+features use strictly-prior GWs). Metric = mean within-GW Spearman between
+projected xPts and actual FPL points:
+
+| model | all players | players who played |
+|---|---|---|
+| odds  | 0.688 | 0.344 |
+| stats | 0.672 | 0.333 |
+
+Per-GW results land in `eval/backtest_results.csv`. The market model leads —
+consistent with the project thesis that the market prices information the
+stats don't have yet.
 
 ## Repo layout
 

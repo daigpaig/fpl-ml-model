@@ -37,13 +37,21 @@
   fixture pairing).
 - 28 tests passing.
 
+### Phase 3 — Eval layer ✅ (2026-07-02)
+
+- `eval/backtest.py` (also `make backtest`): walk-forward over all 38 holdout
+  GWs, prints mean within-GW Spearman for both models and writes per-GW
+  results to `eval/backtest_results.csv`.
+- Holdout (2024-25) results: odds 0.688 / stats 0.672 over all players;
+  0.344 / 0.333 over players who played.
+- 32 tests passing.
+
 ## Next
 
-### Phase 3 — Eval layer
-
-- `eval/backtest.py`: walk-forward by GW over the 2024-25 holdout, prints
-  mean within-GW Spearman (projection xPts vs actual total_points) for both
-  models. `eval/splits.json` already exists.
+- Divergence-explanation layer (out of scope for this build per SPEC).
+- Possible model improvements: live player-prop odds for current GWs,
+  bonus-point modeling, better minutes model (starts column exists from
+  2022-23), lightgbm variants of the stats components.
 
 ## Blockers
 
