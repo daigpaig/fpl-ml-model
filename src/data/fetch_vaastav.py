@@ -134,8 +134,15 @@ def normalize_season_gws(
     if "team" in df.columns:
         df["team_name"] = df["team"]
     else:
-        element_to_team = dict(zip(players_raw["id"], players_raw["team"]))
-        df["team_name"] = df["element"].map(element_to_team).map(team_id_to_name)
+        # Pre-2020-21 files have no per-row team. players_raw's team is
+        # season-static (wrong for mid-season transfers), so derive the true
+        # team from the fixture pairing instead: each fixture carries exactly
+        # two opponent_team ids, and a row's own team is the one it doesn't
+        # list as opponent.
+        pair_sum = df.groupby(["gw", "fixture"])["opponent_team"].transform(
+            lambda s: s.unique().sum()
+        )
+        df["team_name"] = (pair_sum - df["opponent_team"]).map(team_id_to_name)
 
     df["opponent_team_name"] = df["opponent_team"].map(team_id_to_name)
 
