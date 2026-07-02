@@ -7,6 +7,7 @@ the processed parquet files from cache without touching the network.
 
 import argparse
 
+from src.data.fetch_football_data import build_match_odds
 from src.data.fetch_fpl_api import build_fpl_snapshot
 from src.data.fetch_understat import build_understat
 from src.data.fetch_vaastav import build_gw_history
@@ -20,13 +21,16 @@ def main():
     )
     args = parser.parse_args()
 
-    print("[1/3] vaastav historical per-GW data")
+    print("[1/4] vaastav historical per-GW data")
     build_gw_history(force=args.force)
 
-    print("[2/3] understat season + team-match data")
+    print("[2/4] understat season + team-match data")
     build_understat(force=args.force)
 
-    print("[3/3] FPL API current snapshot")
+    print("[3/4] football-data.co.uk historical match odds")
+    build_match_odds(force=args.force)
+
+    print("[4/4] FPL API current snapshot")
     build_fpl_snapshot(force=args.force)
 
     print("done.")

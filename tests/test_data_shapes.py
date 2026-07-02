@@ -12,6 +12,7 @@ from src.data.paths import (
     FPL_FIXTURES_PARQUET,
     FPL_PLAYERS_PARQUET,
     GW_HISTORY_PARQUET,
+    MATCH_ODDS_PARQUET,
     SEASONS,
     UNDERSTAT_PLAYERS_PARQUET,
     UNDERSTAT_TEAM_MATCHES_PARQUET,
@@ -103,6 +104,33 @@ class TestUnderstat:
         assert (per_season == 760).all(), per_season
         assert pd.api.types.is_datetime64_any_dtype(matches["date"])
         assert matches[["team_name", "xG", "xGA", "date"]].notna().all().all()
+
+
+class TestMatchOdds:
+    def test_shape(self):
+        odds = _load(MATCH_ODDS_PARQUET)
+        per_season = odds.groupby("season").size()
+        assert (per_season == 380).all(), per_season
+        assert odds.notna().all().all()
+        odds_cols = ["home_odds", "draw_odds", "away_odds",
+                     "over25_odds", "under25_odds"]
+        assert (odds[odds_cols] > 1.0).all().all()
+        assert pd.api.types.is_datetime64_any_dtype(odds["date"])
+
+    def test_team_names_canonical(self):
+        odds = _load(MATCH_ODDS_PARQUET)
+        gw_history = _load(GW_HISTORY_PARQUET)
+        canonical = set(gw_history["team_name"].unique())
+        assert set(odds["home_team"]) <= canonical
+        assert set(odds["away_team"]) <= canonical
+
+
+class TestUnderstatTeamNamesCanonical:
+    def test_team_matches_use_canonical_names(self):
+        matches = _load(UNDERSTAT_TEAM_MATCHES_PARQUET)
+        gw_history = _load(GW_HISTORY_PARQUET)
+        canonical = set(gw_history["team_name"].unique())
+        assert set(matches["team_name"]) <= canonical
 
 
 class TestFplSnapshot:

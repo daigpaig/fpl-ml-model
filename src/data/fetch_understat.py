@@ -22,6 +22,7 @@ from .paths import (
     UNDERSTAT_TEAM_MATCHES_PARQUET,
     ensure_dirs,
 )
+from .team_names import canonical_team_name
 
 LEAGUE_DATA_URL = "https://understat.com/getLeagueData/EPL/{year}"
 
@@ -53,6 +54,12 @@ def parse_players(league_data: dict, season: str) -> pd.DataFrame:
     ]
     for col in numeric_cols:
         df[col] = pd.to_numeric(df[col], errors="coerce")
+    # team_title is comma-joined for players who moved mid-season.
+    df["team_title"] = df["team_title"].map(
+        lambda names: ",".join(
+            canonical_team_name(n, "understat") for n in str(names).split(",")
+        )
+    )
     return df[
         ["season", "id", "player_name", "team_title", "position"] + numeric_cols
     ].rename(columns={"id": "understat_id", "team_title": "team_name"})
@@ -64,7 +71,7 @@ def parse_team_matches(league_data: dict, season: str) -> pd.DataFrame:
         for match in team["history"]:
             rows.append({
                 "season": season,
-                "team_name": team["title"],
+                "team_name": canonical_team_name(team["title"], "understat"),
                 "date": match["date"],
                 "is_home": match["h_a"] == "h",
                 "xG": match["xG"],

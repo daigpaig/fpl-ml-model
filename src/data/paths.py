@@ -16,8 +16,10 @@ PROCESSED_DIR = DATA_DIR / "processed"
 RAW_VAASTAV_DIR = RAW_DIR / "vaastav"
 RAW_UNDERSTAT_DIR = RAW_DIR / "understat"
 RAW_FPL_API_DIR = RAW_DIR / "fpl_api"
+RAW_FOOTBALL_DATA_DIR = RAW_DIR / "football_data"
 
 GW_HISTORY_PARQUET = PROCESSED_DIR / "gw_history.parquet"
+MATCH_ODDS_PARQUET = PROCESSED_DIR / "match_odds.parquet"
 UNDERSTAT_PLAYERS_PARQUET = PROCESSED_DIR / "understat_players.parquet"
 UNDERSTAT_TEAM_MATCHES_PARQUET = PROCESSED_DIR / "understat_team_matches.parquet"
 FPL_PLAYERS_PARQUET = PROCESSED_DIR / "fpl_players.parquet"
@@ -39,5 +41,11 @@ SEASONS = [
 
 
 def ensure_dirs():
-    for d in (RAW_VAASTAV_DIR, RAW_UNDERSTAT_DIR, RAW_FPL_API_DIR, PROCESSED_DIR):
+    for d in (
+        RAW_VAASTAV_DIR,
+        RAW_UNDERSTAT_DIR,
+        RAW_FPL_API_DIR,
+        RAW_FOOTBALL_DATA_DIR,
+        PROCESSED_DIR,
+    ):
         d.mkdir(parents=True, exist_ok=True)
