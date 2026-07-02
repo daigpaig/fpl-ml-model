@@ -23,10 +23,10 @@ import pandas as pd
 from scipy.stats import spearmanr
 
 from src.data.paths import GW_HISTORY_PARQUET
-from src.features.build import build_features
-from src.models import odds_model
-from src.models.common import load_splits
-from src.models.stats_model import StatsModel
+from model.features import build_features
+from model import odds_model
+from model.common import load_splits
+from model.stats_model import StatsModel
 
 
 def actual_gw_points(gw_history: pd.DataFrame) -> pd.DataFrame:

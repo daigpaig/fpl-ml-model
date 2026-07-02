@@ -7,9 +7,9 @@ import pytest
 from scipy.stats import poisson
 
 from src.data.paths import GW_HISTORY_PARQUET
-from src.models import odds_model
-from src.models.common import DECOMPOSITION_COLUMNS, to_gw_decomposition
-from src.models.stats_model import StatsModel
+from model import odds_model
+from model.common import DECOMPOSITION_COLUMNS, to_gw_decomposition
+from model.stats_model import StatsModel
 
 SAMPLE_SEASON, SAMPLE_GW = "2024-25", 20
 
@@ -70,7 +70,7 @@ class TestGwDecomposition:
 def sample_projections():
     if not GW_HISTORY_PARQUET.exists():
         pytest.skip("run `make fetch-historical` first")
-    from src.features.build import build_features
+    from model.features import build_features
     features = build_features()
     odds_proj = odds_model.project(features, SAMPLE_SEASON, SAMPLE_GW)
     stats_proj = StatsModel().fit(features).project(

@@ -24,7 +24,7 @@ from scipy.optimize import minimize
 from scipy.stats import poisson
 
 from src.data.paths import MATCH_ODDS_PARQUET
-from src.models.common import to_gw_decomposition
+from model.common import to_gw_decomposition
 
 MAX_GOALS = 10
 

@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from src.data.paths import GW_HISTORY_PARQUET, UNDERSTAT_TEAM_MATCHES_PARQUET
-from src.features.build import (
+from model.features import (
     ALL_FEATURES,
     add_gw_order,
     build_features,

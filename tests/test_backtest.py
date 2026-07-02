@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "eval"))
 from backtest import within_gw_spearman  # noqa: E402
 
 from src.data.paths import SEASONS
-from src.models.common import load_splits
+from model.common import load_splits
 
 
 def _frames(xpts, actual_points, actual_minutes):

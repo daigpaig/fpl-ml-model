@@ -21,7 +21,7 @@ from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from src.data.paths import MATCH_ODDS_PARQUET
-from src.models.common import load_splits, to_gw_decomposition
+from model.common import load_splits, to_gw_decomposition
 
 PLAYER_MODEL_FEATURES = [
     "played_rate_5",

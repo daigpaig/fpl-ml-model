@@ -12,9 +12,9 @@ import argparse
 
 import pandas as pd
 
-from src.features.build import build_features
-from src.models import odds_model
-from src.models.stats_model import StatsModel
+from model.features import build_features
+from model import odds_model
+from model.stats_model import StatsModel
 
 
 def run(season: str, gw: int, model: str) -> pd.DataFrame:
