@@ -1,4 +1,5 @@
 {
+  "_comment": "Legacy top-level keys = deployment/sealed era (used by src/project.py CLI default). Named splits below are what eval/backtest.py uses. The loop only ever evaluates on 'dev'; 'sealed' is reserved.",
   "train_seasons": [
     "2016-17",
     "2017-18",
@@ -9,5 +10,32 @@
     "2022-23",
     "2023-24"
   ],
-  "holdout_seasons": ["2024-25"]
+  "holdout_seasons": ["2024-25"],
+  "splits": {
+    "dev": {
+      "train_seasons": [
+        "2016-17",
+        "2017-18",
+        "2018-19",
+        "2019-20",
+        "2020-21",
+        "2021-22",
+        "2022-23"
+      ],
+      "eval_seasons": ["2023-24"]
+    },
+    "sealed": {
+      "train_seasons": [
+        "2016-17",
+        "2017-18",
+        "2018-19",
+        "2019-20",
+        "2020-21",
+        "2021-22",
+        "2022-23",
+        "2023-24"
+      ],
+      "eval_seasons": ["2024-25"]
+    }
+  }
 }
