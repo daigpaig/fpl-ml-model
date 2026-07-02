@@ -39,10 +39,31 @@ Season-to-season schema quirks (name formats, missing position/team columns
 pre-2020-21, encodings, COVID GW renumbering in 2019-20, assistant-manager
 rows in 2024-25) are normalized in `src/data/fetch_vaastav.py`.
 
-## Phase 2 — Models (next)
+## Phase 2 — Models (done)
 
-Odds-based xPts and stats-based xPts, both emitting the shared decomposition
-for any historical GW via one CLI command.
+```bash
+venv/bin/python -m src.project --season 2024-25 --gw 20              # both models
+venv/bin/python -m src.project --season 2024-25 --gw 20 --model odds --out proj.csv
+```
+
+Both models emit the shared per-player decomposition
+`{start_prob, goal_prob, assist_prob, cs_prob, xpts}` for any historical GW.
+
+**Odds model** (`src/models/odds_model.py`): vig-strips 1X2 + over/under-2.5
+market odds (proportional normalization), fits implied Poisson team goal
+expectations per fixture, then allocates them to players by their trailing
+share of team goals/assists. `cs_prob = exp(-λ_opponent)`.
+
+**Stats model** (`src/models/stats_model.py`): three logistic regressions on
+named rolling features — goal and assist probability per player-fixture,
+clean-sheet probability per team-fixture — trained only on the train seasons
+in `eval/splits.json`.
+
+**Shared components** (`src/features/build.py`, `src/models/common.py`):
+leak-free rolling features (every value uses only GWs strictly before the
+target — proven by `tests/test_no_lookahead.py`), the minutes model
+(`start_prob` = trailing rate of 60+-minute appearances), and the xPts
+formula. Bonus/cards/saves are out of scope (see `DECISIONS.md`).
 
 ## Phase 3 — Evaluation
 

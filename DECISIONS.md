@@ -29,3 +29,43 @@ Ambiguity resolutions not covered by SPEC.md, with rationale. Newest last.
   fresh clone without committing data.
 - **GW-count expectations encode known anomalies**: 2019-20 COVID restart
   renumbered GWs up to 47; 2022-23 GW7 was postponed (37 distinct GWs).
+
+## Phase 2
+
+- **Historical odds source = football-data.co.uk match markets (1X2 +
+  over/under 2.5), not player props.** Free historical player-prop odds don't
+  exist, and Phase 3 requires the odds model to backtest on the whole
+  holdout. Team goal expectations are fitted from the match markets
+  (independent Poisson, minimizing squared error vs the vig-free
+  probabilities) and allocated to players by their trailing share of team
+  goals/assists. The live Odds API player-prop path (legacy MVP scripts) can
+  replace the allocation step for current GWs later.
+- **Market-average odds columns (Avg / BbAv), not a single bookmaker** —
+  less idiosyncratic noise, available across all nine seasons.
+- **Cross-season player identity = (player_name, position)** — vaastav
+  `element` ids reset every season. Within a season, joins also include
+  team_name to separate distinct players sharing a name (SPEC: team + name,
+  never name-only). Known residual risk: two same-name same-position players
+  would still pool cross-season history; none observed in this data.
+- **Pre-2020-21 per-row team derived from the fixture pairing** (each fixture
+  lists exactly two opponent ids; a row's team is the one it doesn't list) —
+  players_raw's team is season-static and wrong for mid-season transfers.
+- **start_prob := P(plays 60+ minutes)**, estimated as the trailing 5-GW rate
+  of 60+-minute appearances (the "starts" column only exists from 2022-23).
+  Both models share this minutes model — the market does not price starts.
+  New players with no history get start_prob 0 until they appear.
+- **Rolling windows: 5 GWs (minutes), 10 (goal/assist rates), 20 (share of
+  team goals), 10 matches (team xG form).** Chosen for form-vs-noise balance,
+  not tuned; they're named constants in src/features/build.py.
+- **xPts uses P(>=1 event) x points, ignoring multi-goal games, bonus,
+  cards, saves, and goals-conceded penalties.** Keeps the two models'
+  decompositions exactly comparable and interpretable; the ignored terms are
+  small and mostly rank-neutral.
+- **Double GWs: components combine as 1 - prod(1-p), xPts adds across
+  fixtures**; blank GWs simply have no rows.
+- **CS training target comes from football-data final scores**, not from
+  player-level goals_conceded aggregation — one unambiguous source.
+- **Models retrain on demand (~seconds) instead of persisting to disk** — no
+  staleness, no artefact management.
+- **eval/splits.json created in Phase 2** (models need the train-season list
+  at fit time); train = 2016-17..2023-24, holdout = 2024-25 per SPEC.
