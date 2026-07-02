@@ -46,12 +46,29 @@
   0.344 / 0.333 over players who played.
 - 32 tests passing.
 
+### Autonomous-loop infrastructure ✅ (2026-07-02)
+
+- Experiment surface restructured into top-level `model/` (pure move, frozen
+  scores reproduced exactly).
+- Eval layer: `--split dev|sealed` (dev = 2023-24 walk-forward, train
+  strictly before), `--model stats|odds|both`, `--by-position`, restricted
+  (minutes > 0) Spearman labeled as the headline metric.
+- `make baselines`: last-5-appearance baseline vs both models, both splits
+  (table in results.md entry 0 and README).
+- Loop control: results.md (append-only log, seeded with real numbers),
+  CLAUDE.loop.md (verbatim protocol), program.md (5 priority directions +
+  constraints), executable loop.sh.
+- Guardrails: sha256 integrity test on eval files/splits,
+  `make lockdown`/`make unlock` (chmod on data/ + eval/), runs/ for outputs.
+- Model issues spotted along the way logged in IDEAS.md (models untouched).
+- 42 tests passing. Repo left in lockdown.
+
 ## Next
 
+- Run the loop: `./loop.sh 5` (ratchets stats model on dev restricted
+  Spearman, currently 0.3090).
 - Divergence-explanation layer (out of scope for this build per SPEC).
-- Possible model improvements: live player-prop odds for current GWs,
-  bonus-point modeling, better minutes model (starts column exists from
-  2022-23), lightgbm variants of the stats components.
+- Live player-prop odds path for current GWs (legacy MVP scripts).
 
 ## Blockers
 

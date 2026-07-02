@@ -68,33 +68,60 @@ formula. Bonus/cards/saves are out of scope (see `DECISIONS.md`).
 ## Phase 3 — Evaluation (done)
 
 ```bash
-make backtest      # = python eval/backtest.py
+make backtest                                        # sealed split, both models
+venv/bin/python eval/backtest.py --split dev --model stats --by-position
+make baselines                                       # full comparison table
 ```
 
-Walk-forward over every GW of the 2024-25 holdout (splits in
-`eval/splits.json`; the stats model is fitted on train seasons only, and all
-features use strictly-prior GWs). Metric = mean within-GW Spearman between
-projected xPts and actual FPL points:
+Two walk-forward splits (`eval/splits.json`): **dev** = 2023-24, training
+strictly before it (the experimentation split); **sealed** = the 2024-25
+holdout (reserved for final evaluation). Metric = mean within-GW Spearman
+between projected xPts and actual FPL points. The **headline metric is the
+restricted population (players with minutes > 0)** — the all-players number
+is inflated by trivially ranking bench-sitters last.
 
-| model | all players | players who played |
-|---|---|---|
-| odds  | 0.688 | 0.344 |
-| stats | 0.672 | 0.333 |
+| model | dev restricted* | dev all | sealed restricted* | sealed all |
+|-------|-----------------|---------|--------------------|------------|
+| last5 | 0.2623          | 0.4451  | 0.2884             | 0.4635     |
+| stats | 0.3090          | 0.6520  | 0.3333             | 0.6719     |
+| odds  | 0.3287          | 0.6759  | 0.3436             | 0.6878     |
 
-Per-GW results land in `eval/backtest_results.csv`. The market model leads —
-consistent with the project thesis that the market prices information the
-stats don't have yet.
+*headline. `last5` = mean FPL points over the previous 5 appearances. Both
+models beat it everywhere; the market model leads — consistent with the
+thesis that the market prices information the stats don't have yet. Per-GW
+results land in `runs/` (gitignored).
+
+## Autonomous research loop
+
+Infrastructure for unattended single-experiment iterations on the stats
+model (`./loop.sh [N]`, default 5). Each iteration follows `CLAUDE.loop.md`:
+one change under `model/` guided by `program.md`, ratcheted on the dev
+restricted Spearman, logged append-only in `results.md`, reverted unless it
+improves with tests green. Guardrails: `tests/test_eval_integrity.py` pins
+the eval scripts + splits by hash, and `make lockdown` / `make unlock`
+toggles filesystem write-protection on `data/` and `eval/`. The sealed split
+is never run by the loop.
 
 ## Repo layout
 
 ```
-src/data/            Phase 1 fetchers (vaastav, understat, FPL API) + http cache
+model/               experiment surface for the loop: stats/odds models,
+                     features + minutes model, shared decomposition
+src/data/            Phase 1 fetchers (vaastav, understat, football-data,
+                     FPL API) + http cache — off limits to the loop
 src/fetch_historical.py   entry point for `make fetch-historical`
-tests/               data-shape tests
+src/project.py       projection CLI (python -m src.project)
+eval/                frozen eval layer: backtest.py, baselines.py, splits.json
+tests/               data-shape, model, anti-lookahead, eval-integrity tests
 data/raw|processed/  gitignored; rebuilt by make fetch-historical
+runs/                gitignored per-GW backtest CSVs
 SPEC.md              build spec (phases, decisions already made)
 PROGRESS.md          what's done / what's next
 DECISIONS.md         ambiguity resolutions with rationale
+results.md           append-only experiment log (loop ratchet)
+program.md           research directions for the loop
+CLAUDE.loop.md       per-experiment protocol
+IDEAS.md             observed model issues, parked (models frozen)
 ```
 
 Legacy single-GW MVP scripts (`src/fetch_fpl_data.py`, `src/fetch_odds_data.py`,

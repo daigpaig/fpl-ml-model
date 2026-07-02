@@ -81,4 +81,41 @@ Ambiguity resolutions not covered by SPEC.md, with rationale. Newest last.
   and only players with minutes > 0 (harder; strips the free wins from
   ranking bench-sitters last). The headline metric is the all-players one.
 - **Per-GW results are written to eval/backtest_results.csv (gitignored)** —
-  derived output, regenerable by `make backtest`.
+  derived output, regenerable by `make backtest`. (Superseded: they now go
+  to runs/, see loop infrastructure below.)
+
+## Autonomous-loop infrastructure (2026-07-02)
+
+- **Experiment surface moved to a top-level model/ package** (pure `git mv`
+  of src/models/* and src/features/build.py; imports updated mechanically).
+  The loop protocol — required verbatim — confines experiments to `model/`
+  and reverts with `git checkout -- model/`, so that directory had to exist
+  and contain exactly what experiments may touch (models + features +
+  minutes model). Zero logic change, verified by exact reproduction of the
+  frozen sealed scores (odds .3436/.6878, stats .3333/.6719) and a green
+  suite. Known revert gap: `git checkout -- model/` does not delete NEW
+  untracked files an experiment adds under model/; they are inert once the
+  tracked entry points are reverted.
+- **splits.json: named splits under a "splits" key; legacy top-level keys
+  kept equal to the sealed era** so the frozen model/common.py and the
+  src/project.py CLI defaults did not need edits.
+- **Dev split = all 38 GWs of 2023-24 as-is** (double and blank GWs
+  included; the decomposition already aggregates DGWs, blanks simply have no
+  rows). Training = 2016-17..2022-23, strictly before the eval season.
+- **`--split` defaults to sealed** so the pre-existing `make backtest`
+  behavior is unchanged; the loop always passes `--split dev` explicitly.
+- **Per-GW backtest CSVs moved to gitignored runs/** because `make lockdown`
+  makes eval/ unwritable and the loop must still run backtests.
+- **The last-5 baseline lives in eval/ and imports nothing from model/** so
+  loop experiments can never move the baseline.
+- **Eval integrity = sha256 pins in tests/test_eval_integrity.py** on
+  eval/backtest.py, eval/baselines.py, eval/splits.json (splits config).
+  Stronger than a git-diff check (still fails after a tampered commit).
+  Deliberate human changes to eval/ must update the hashes in the same
+  commit. results.md/program.md/CLAUDE.loop.md are protocol-protected but
+  not hash-pinned (results.md is append-only by design; program.md is meant
+  to be human-editable between runs).
+- **loop.sh prepends venv/bin to PATH** so the protocol's literal `python`
+  and `pytest` commands resolve to the project venv in headless runs.
+- **Model observations found during this session went to IDEAS.md, not into
+  code** (models frozen per instruction).
