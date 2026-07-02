@@ -1,0 +1,10 @@
+requests
+pandas
+numpy
+pyarrow
+python-dotenv
+rapidfuzz
+scipy
+scikit-learn
+lightgbm
+pytest
